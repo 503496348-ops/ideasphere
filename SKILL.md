@@ -356,7 +356,7 @@ python3 scripts/manifest.py --workdir "/path/to/output" --action reset
 
 脚本支持发送进度通知到 Feishu，但：
 - **默认不发送消息**（`--notify false` 即可禁用）
-- 如需启用，请设置 `OPENCLAW_TARGET` 环境变量为可信目标
+- 如需启用，请设置 `REMOTE_TARGET` 环境变量为可信目标
 
 ### 2. API Key 安全
 
