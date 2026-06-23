@@ -1,6 +1,6 @@
 ---
 name: 灵感象限-Ideasphere
-description: 灵感象限-Ideasphere：自媒体视频一站式剪辑技能包。输入本地素材或在线URL，自动完成在线视频下载→去静音剪辑→Faster Whisper语音转字幕→LLM纠错→字幕翻译(支持双语)→字幕烧录→TTS语音配音→平台适配渲染→多平台导出。支持断点续跑、阶段恢复，输出抖音/B站/YouTube-ready成品。
+description: "自媒体视频创作引擎。去静音→Whisper字幕→翻译→烧录→平台适配一站式处理。当需要处理视频、添加字幕、翻译视频内容、生成短视频时使用。"
 version: "1.3.0"
 requires_toolsets:
   - terminal
@@ -56,6 +56,8 @@ scripts:
 ---
 
 # 灵感象限-Ideasphere
+
+> 📖 详细文档见 `references/` 目录
 
 **自媒体视频一站式剪辑技能包**
 
@@ -137,3 +139,12 @@ result = processor.create_video_from_frames(
 - MEDIUM: 720x480, 1Mbps
 - HIGH: 1280x720, 2Mbps
 - ULTRA: 1920x1080, 4Mbps
+
+## 工作流
+
+使用此技能时，按以下步骤执行：
+- [ ] 1. 确认用户需求和使用场景
+- [ ] 2. 加载相关代码和配置
+- [ ] 3. 执行核心功能
+- [ ] 4. 验证输出结果
+- [ ] 5. 反馈给用户
