@@ -1,7 +1,7 @@
 ---
 name: 灵感象限-Ideasphere
 description: "自媒体视频创作引擎。去静音→Whisper字幕→翻译→烧录→平台适配一站式处理。当需要处理视频、添加字幕、翻译视频内容、生成短视频时使用。"
-version: 1.4.0
+version: 1.5.0
 requires_toolsets:
   - terminal
   - python
@@ -32,7 +32,7 @@ metadata:
   hermes:
     author: AtomCollide-智械工坊团队
     created: 2026-05-04
-    updated: 2026-06-23
+    updated: 2026-06-24
     maturity: production
     category: media
     tags:
@@ -70,7 +70,7 @@ scripts:
 - 用户需要视频配音
 - 用户需要平台适配渲染
 - 用户需要下载在线视频
-- **视频处理和优化**（NEW）
+- 视频处理和优化（格式转换、质量调整、帧提取）
 
 ## Quick Start
 
@@ -97,9 +97,74 @@ python3 scripts/pipeline.py --all \
   --target-lang "English"
 ```
 
-## Video Processing (NEW)
+## 工作流
 
-融合自 huggingface/diffusers 的视频处理能力。
+### Step 1: 需求确认
+
+确认用户意图属于以下哪个分支：
+
+| 分支 | 触发词 | 入口脚本 |
+|------|--------|----------|
+| 完整流水线 | "处理视频""剪辑""加字幕" | `scripts/pipeline.py --all` |
+| 仅下载 | "下载视频""YouTube""B站" | `scripts/video_download.py` |
+| 仅视频处理 | "压缩""转格式""提帧" | `modules/video_processor.py` |
+| 仅字幕 | "字幕翻译""双语字幕" | `scripts/translate_subtitle.py` |
+| 仅配音 | "TTS""配音""语音合成" | `scripts/tts_dubbing.py` |
+
+### Step 2: 环境预检
+
+```bash
+# 检查核心依赖
+python3 scripts/pipeline.py --check-deps
+
+# 必需依赖
+# - ffmpeg (系统包)
+# - auto-editor (pip install auto-editor)
+# - faster-whisper (pip install faster-whisper)
+# - yt-dlp (pip install yt-dlp) — 仅下载分支需要
+# - edge-tts (pip install edge-tts) — 仅TTS分支需要
+```
+
+### Step 3: 执行
+
+根据分支选择对应命令。完整流水线参数：
+
+```bash
+python3 scripts/pipeline.py --all \
+  --input <输入目录或文件> \
+  --output <输出目录> \
+  --target-lang <目标语言，如 English/中文/日本語> \
+  --bilingual \          # 可选：生成双语字幕
+  --platform <平台>      # 可选：douyin/youtube/bilibili/xiaohongshu
+```
+
+### Step 4: 输出验证
+
+```bash
+# 检查输出文件
+ls -lh <output_dir>/
+
+# 预期产物：
+# - *_trimmed.mp4       — 去静音后视频
+# - *_subtitled.mp4     — 烧录字幕后视频
+# - *.srt               — 字幕文件
+# - *_dubbed.mp4        — TTS配音视频（如启用）
+# - *_<platform>.mp4    — 平台适配版本（如指定）
+```
+
+## 技术参考
+
+### 平台适配预设
+
+| 平台 | 分辨率 | 画面比例 | 最大时长 |
+|------|--------|----------|----------|
+| 抖音 / 快手 | 1080×1920 | 9:16 | 15min |
+| 微信视频号 | 1080×1920 | 9:16 | 30min |
+| 小红书 | 1080×1440 | 3:4 | 15min |
+| YouTube | 1920×1080 | 16:9 | 无限制 |
+| B站 | 1920×1080 | 16:9 | 无限制 |
+
+### 视频处理模块
 
 ```python
 from modules.video_processor import VideoProcessor, VideoQuality
@@ -108,8 +173,6 @@ processor = VideoProcessor()
 
 # 获取视频信息
 info = processor.get_video_info("/path/to/video.mp4")
-print(f"分辨率: {info.width}x{info.height}")
-print(f"时长: {info.duration}s")
 
 # 优化视频
 result = processor.optimize_video(
@@ -125,26 +188,37 @@ frames = processor.extract_frames(
     frame_interval=1.0,
     max_frames=100,
 )
-
-# 从帧创建视频
-result = processor.create_video_from_frames(
-    frames,
-    "/path/to/output.mp4",
-    fps=30.0,
-)
 ```
 
-**质量预设**:
-- LOW: 480x360, 500kbps
-- MEDIUM: 720x480, 1Mbps
-- HIGH: 1280x720, 2Mbps
-- ULTRA: 1920x1080, 4Mbps
+质量预设：
+- LOW: 480×360, 500kbps
+- MEDIUM: 720×480, 1Mbps
+- HIGH: 1280×720, 2Mbps
+- ULTRA: 1920×1080, 4Mbps
 
-## 工作流
+### 依赖说明
 
-使用此技能时，按以下步骤执行：
-- [ ] 1. 确认用户需求和使用场景
-- [ ] 2. 加载相关代码和配置
-- [ ] 3. 执行核心功能
-- [ ] 4. 验证输出结果
-- [ ] 5. 反馈给用户
+| 依赖 | 用途 | 安装 |
+|------|------|------|
+| ffmpeg | 视频剪辑/烧录/渲染 | `apt install ffmpeg` |
+| auto-editor | 去静音检测 | `pip install auto-editor` |
+| faster-whisper | 语音转文字 | `pip install faster-whisper` |
+| yt-dlp | 在线视频下载 | `pip install yt-dlp` |
+| edge-tts | TTS配音 | `pip install edge-tts` |
+| openai | LLM字幕纠错/翻译 | `pip install openai` |
+
+### API 配置
+
+| 环境变量 | 用途 | 必需 |
+|----------|------|------|
+| `MINIMAX_API_KEY` | LLM字幕纠错和翻译 | 字幕翻译分支需要 |
+| `OPENAI_API_KEY` | 备用LLM（可选） | 否 |
+
+## Pitfalls
+
+1. **Whisper 模型首次运行会下载模型文件**（~1.5GB），网络慢时会卡住。建议预先 `faster-whisper download-model large-v3`。
+2. **auto-editor 对纯音乐片段误判率高**，有大量BGM的视频建议手动检查去静音结果。
+3. **yt-dlp 版权保护视频**（如会员专享）无法下载，会返回错误但不中断流水线。
+4. **双语字幕烧录后文字可能溢出**，短字幕（<10字）效果最佳，长句会被自动折行。
+5. **Edge TTS 中文音色**推荐 `zh-CN-XiaoxiaoNeural`（女声）和 `zh-CN-YunxiNeural`（男声）。
+6. **大文件处理**（>1GB）建议先用 `optimize_video(quality=VideoQuality.MEDIUM)` 压缩再进流水线。

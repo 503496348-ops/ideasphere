@@ -245,7 +245,7 @@ hermes-skill-ideasphere/
 
 ## 🎬 视频处理增强 (NEW)
 
-融合自 huggingface/diffusers 的视频处理能力。
+视频处理增强模块，支持质量优化、格式转换、帧提取和视频合成。
 
 **处理能力**:
 - 视频质量优化
