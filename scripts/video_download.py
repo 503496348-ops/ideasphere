@@ -140,6 +140,15 @@ def download_video(url, output_dir, filename=None, quality="best",
     返回:
         dict: {"video_path": ..., "subtitle_paths": [...], "info": {...}}
     """
+    # 安全防护：路径遍历检查（融合自 KrillinAI v2.1.0 #297）
+    output_dir = os.path.abspath(output_dir)
+    if filename:
+        # 阻止路径遍历攻击：filename 不能包含 .. 或绝对路径
+        safe_name = os.path.basename(filename)
+        if safe_name != filename:
+            print(f"⚠️ 文件名已安全处理: {filename!r} → {safe_name!r}")
+            filename = safe_name
+
     os.makedirs(output_dir, exist_ok=True)
 
     # 检查 yt-dlp

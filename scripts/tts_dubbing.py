@@ -7,6 +7,7 @@ TTS 配音模块（灵感象限-Ideasphere）
 支持:
   - Edge TTS（免费，无需 API Key，300+ 音色）
   - OpenAI TTS（付费，高质量）
+  - MiniMax TTS（高质量中文，speech-2.8-hd，融合自 KrillinAI v2.1.0）
   - 自动语速对齐（TTS 时长匹配字幕时间轴）
   - 配音视频生成（替换原始音频轨）
 
@@ -42,6 +43,20 @@ EDGE_TTS_VOICES = {
     "ru": "ru-RU-SvetlanaNeural",        # 俄语女声
     "ar": "ar-SA-ZariyahNeural",         # 阿拉伯语女声
 }
+
+# ── MiniMax TTS 音色推荐表 ───────────────────────────────────────────────────
+MINIMAX_TTS_VOICES = {
+    "zh": "Chinese_Stories_Lady",       # 中文女声（自然）
+    "zh-male": "Chinese_Story_Narrator", # 中文男声
+    "en": "English_Graceful_Lady",       # 英文女声
+    "en-male": "English_Calm_Man",       # 英文男声
+    "ja": "Japanese_Ent_Female_1",       # 日文女声
+    "ko": "Korean_Female_1",             # 韩文女声
+}
+
+# MiniMax TTS 配置
+MINIMAX_TTS_MODEL = "speech-2.8-hd"
+MINIMAX_TTS_BASE_URL = "https://api.minimaxi.com"
 
 # 语言代码映射
 LANG_CODE_MAP = {
@@ -192,6 +207,66 @@ def openai_tts_synthesize(text, voice, output_path, api_key=None, model="tts-1",
     with open(output_path, "wb") as f:
         f.write(resp.content)
 
+# ── MiniMax TTS 合成（融合自 KrillinAI v2.1.0）─────────────────────────────
+
+def minimax_tts_synthesize(text, voice, output_path, api_key=None,
+                            model=None, base_url=None):
+    """使用 MiniMax T2A v2 API 合成语音
+
+    融合自 KrillinAI pkg/minimax/tts.go 的实现。
+    API: POST /v1/t2a_v2  返回 hex 编码的 WAV 音频。
+    """
+    import binascii
+    import requests
+
+    if not api_key:
+        api_key = os.environ.get("MINIMAX_API_KEY")
+    if not api_key:
+        raise ValueError("MiniMax API Key required. Set MINIMAX_API_KEY env var.")
+
+    base_url = (base_url or MINIMAX_TTS_BASE_URL).rstrip("/")
+    model = model or MINIMAX_TTS_MODEL
+    voice = voice or MINIMAX_TTS_VOICES.get("zh", "Chinese_Stories_Lady")
+
+    url = f"{base_url}/v1/t2a_v2"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": model,
+        "text": text,
+        "stream": False,
+        "voice_setting": {
+            "voice_id": voice,
+            "speed": 1.0,
+            "vol": 1.0,
+            "pitch": 0,
+        },
+        "audio_setting": {
+            "sample_rate": 44100,
+            "format": "wav",
+            "channel": 1,
+        },
+    }
+
+    resp = requests.post(url, headers=headers, json=payload, timeout=60)
+    if resp.status_code != 200:
+        raise RuntimeError(f"MiniMax TTS failed: {resp.status_code} {resp.text[:200]}")
+
+    data = resp.json()
+    base_resp = data.get("base_resp", {})
+    if base_resp.get("status_code", -1) != 0:
+        raise RuntimeError(f"MiniMax TTS API error: {base_resp.get('status_msg', 'unknown')}")
+
+    audio_hex = data.get("data", {}).get("audio", "")
+    if not audio_hex:
+        raise RuntimeError("MiniMax TTS: empty audio in response")
+
+    audio_bytes = binascii.unhexlify(audio_hex)
+    with open(output_path, "wb") as f:
+        f.write(audio_bytes)
+
 
 # ── 批量 TTS 合成 ─────────────────────────────────────────────────────────────
 
@@ -203,7 +278,7 @@ def synthesize_subtitles(srt_path, output_dir, provider="edge", voice=None,
     参数:
         srt_path: SRT 字幕文件路径
         output_dir: 输出目录
-        provider: TTS 提供商 (edge / openai)
+        provider: TTS 提供商 (edge / openai / minimax)
         voice: 音色名称（None 则自动选择）
         lang: 语言代码
         api_key: API Key（OpenAI TTS 需要）
@@ -236,6 +311,8 @@ def synthesize_subtitles(srt_path, output_dir, provider="edge", voice=None,
             voice = EDGE_TTS_VOICES.get(lang, EDGE_TTS_VOICES.get("zh"))
         elif provider == "openai":
             voice = "alloy"
+        elif provider == "minimax":
+            voice = MINIMAX_TTS_VOICES.get(lang, MINIMAX_TTS_VOICES.get("zh"))
     print(f"   音色: {voice}")
 
     # 合成每条字幕
@@ -257,7 +334,20 @@ def synthesize_subtitles(srt_path, output_dir, provider="edge", voice=None,
             elif provider == "openai":
                 openai_tts_synthesize(text, voice, seg_path, api_key=api_key)
                 if speed_match:
-                    # OpenAI TTS 也需要速度匹配
+                    actual = get_audio_duration(seg_path)
+                    if actual > 0 and abs(actual - target_duration) > 0.3:
+                        factor = max(0.5, min(2.0, actual / target_duration))
+                        if abs(factor - 1.0) > 0.05:
+                            temp = seg_path + ".temp.wav"
+                            subprocess.run([
+                                "ffmpeg", "-y", "-i", seg_path,
+                                "-filter:a", f"atempo={factor}", temp
+                            ], capture_output=True)
+                            if os.path.exists(temp):
+                                os.replace(temp, seg_path)
+            elif provider == "minimax":
+                minimax_tts_synthesize(text, voice, seg_path, api_key=api_key)
+                if speed_match:
                     actual = get_audio_duration(seg_path)
                     if actual > 0 and abs(actual - target_duration) > 0.3:
                         factor = max(0.5, min(2.0, actual / target_duration))
@@ -509,6 +599,15 @@ def list_voices(provider="edge", lang=None):
         for v in ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]:
             print(f"  - {v}")
         return ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
+    elif provider == "minimax":
+        print("\n🎙️ MiniMax TTS 可用音色 (speech-2.8-hd):")
+        print("-" * 50)
+        for key, voice_id in MINIMAX_TTS_VOICES.items():
+            label = key.replace("-male", " 男声").replace("zh", "中文").replace("en", "英文").replace("ja", "日文").replace("ko", "韩文")
+            print(f"  {label:<12} → {voice_id}")
+        print("-" * 50)
+        print("  完整音色列表: https://platform.minimaxi.com/document/T2A%20V2")
+        return list(MINIMAX_TTS_VOICES.values())
     return []
 
 
@@ -557,7 +656,7 @@ def main():
     parser.add_argument("--srt", help="输入 SRT 字幕文件路径")
     parser.add_argument("--video", help="原始视频路径（生成配音视频时需要）")
     parser.add_argument("--output", "-o", default="./tts_output", help="输出目录")
-    parser.add_argument("--provider", choices=["edge", "openai"], default="edge",
+    parser.add_argument("--provider", choices=["edge", "openai", "minimax"], default="edge",
                         help="TTS 提供商 (默认: edge)")
     parser.add_argument("--voice", help="音色名称（不指定则自动选择）")
     parser.add_argument("--lang", default="zh", help="语言代码 (默认: zh)")

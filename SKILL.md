@@ -1,7 +1,7 @@
 ---
 name: 灵感象限-Ideasphere
 description: "自媒体视频创作引擎。去静音→Whisper字幕→翻译→烧录→平台适配一站式处理。当需要处理视频、添加字幕、翻译视频内容、生成短视频时使用。"
-version: 1.5.0
+version: 1.6.0
 requires_toolsets:
   - terminal
   - python
@@ -32,7 +32,7 @@ metadata:
   hermes:
     author: AtomCollide-智械工坊团队
     created: 2026-05-04
-    updated: 2026-06-24
+    updated: 2026-06-27
     maturity: production
     category: media
     tags:
@@ -47,6 +47,7 @@ metadata:
       - 平台适配
       - TTS配音
       - Edge TTS
+      - MiniMax TTS
       - 视频下载
       - yt-dlp
       - 视频处理
@@ -221,4 +222,5 @@ frames = processor.extract_frames(
 3. **yt-dlp 版权保护视频**（如会员专享）无法下载，会返回错误但不中断流水线。
 4. **双语字幕烧录后文字可能溢出**，短字幕（<10字）效果最佳，长句会被自动折行。
 5. **Edge TTS 中文音色**推荐 `zh-CN-XiaoxiaoNeural`（女声）和 `zh-CN-YunxiNeural`（男声）。
+6. **MiniMax TTS**（融合自 KrillinAI v2.1.0）提供更高质量的中文语音合成，使用 `speech-2.8-hd` 模型。需设置 `MINIMAX_API_KEY` 环境变量。
 6. **大文件处理**（>1GB）建议先用 `optimize_video(quality=VideoQuality.MEDIUM)` 压缩再进流水线。
