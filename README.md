@@ -1,3 +1,15 @@
+## 一键安装 / One-click Quickstart
+
+```bash
+bash install.sh
+python3 scripts/doctor.py
+python3 scripts/smoke.py
+```
+
+- `bash install.sh`：自动执行 setup + smoke，适合第一次使用。
+- `python3 scripts/doctor.py`：检查环境、入口文件和产品门禁，失败时给出修复建议。
+- `python3 scripts/smoke.py`：执行产品收敛门禁和轻量核心冒烟验证。
+
 # 灵感象限-Ideasphere
 
 **自媒体视频一站式剪辑技能包**
