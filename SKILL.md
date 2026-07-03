@@ -235,3 +235,8 @@ frames = processor.extract_frames(
 5. **Edge TTS 中文音色**推荐 `zh-CN-XiaoxiaoNeural`（女声）和 `zh-CN-YunxiNeural`（男声）。
 6. **MiniMax TTS**（融合自 KrillinAI v2.1.0）提供更高质量的中文语音合成，使用 `speech-2.8-hd` 模型。需设置 `MINIMAX_API_KEY` 环境变量。
 6. **大文件处理**（>1GB）建议先用 `optimize_video(quality=VideoQuality.MEDIUM)` 压缩再进流水线。
+
+## 2026-07-03 产品收敛门禁
+
+- 新增 `scripts/product_convergence_gate.py`：从远端干净 clone 后可运行 `python3 scripts/product_convergence_gate.py --json`，检查 SKILL/README、入口文件、smoke 目标、测试与外部融合引用是否自洽。
+- 新增 `tests/test_product_convergence_gate.py`：确保门禁在产品仓库中真实可执行，避免后续增强只停留在孤岛模块。

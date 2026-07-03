@@ -1,0 +1,24 @@
+{
+  "repo": "ideasphere",
+  "entrypoints": [
+    "scripts/pipeline.py"
+  ],
+  "smoke_targets": [
+    "scripts/product_convergence_gate.py"
+  ],
+  "known_external_reference_files": [
+    "SKILL.md",
+    "modules/diffusers_engine/layerwise_casting.py",
+    "modules/diffusers_engine/modular_pipeline.py",
+    "modules/diffusers_engine/regional_compiler.py",
+    "modules/diffusers_engine/taylor_cache.py",
+    "modules/krillinai_pipeline/multi_asr_backend.py",
+    "modules/krillinai_pipeline/pipeline_orchestrator.py",
+    "modules/video_processor.py",
+    "scripts/product_convergence_gate.py",
+    "scripts/stage_pipeline.py",
+    "scripts/tts_dubbing.py",
+    "scripts/video_download.py"
+  ],
+  "policy": "External/fusion references are allowed only when explicitly reviewed here; new fusion work must add a smoke target or entrypoint wiring."
+}
