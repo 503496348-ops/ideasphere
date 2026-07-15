@@ -5,6 +5,7 @@
   "scripts": {
     "setup": "python3 scripts/setup.py",
     "doctor": "python3 scripts/doctor.py",
+    "style-guard": "python3 scripts/anti_ai_style_guard.py",
     "smoke": "python3 scripts/smoke.py",
     "check:syntax": "python3 -m py_compile scripts/*.py",
     "test": "python3 -m pytest tests/test_one_click_open_box.py -q",

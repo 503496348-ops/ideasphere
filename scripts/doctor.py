@@ -2,6 +2,7 @@
 """Human-readable environment doctor for one-click users."""
 from __future__ import annotations
 import json, shutil, subprocess, sys
+from anti_ai_style_guard import collect_style_guard_report
 from datetime import datetime
 from pathlib import Path
 
@@ -35,6 +36,10 @@ def collect_run_report(root: Path | None = None) -> dict:
             add('package.json parseable', False, f'JSON 解析失败: {exc}')
     else:
         print('[INFO] package.json absent; shell/python one-click path is primary')
+
+    slop = collect_style_guard_report(root)
+    for item in slop.get('checks', []):
+        checks.append(item)
 
     gate = root/'scripts/product_convergence_gate.py'
     if gate.exists():

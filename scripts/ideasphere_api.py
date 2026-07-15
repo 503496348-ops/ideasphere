@@ -16,6 +16,7 @@ except Exception:
     FastAPI = None  # type: ignore
 
 from doctor import ROOT, collect_run_report
+from anti_ai_style_guard import collect_style_guard_report
 
 
 def _run_doctor() -> tuple[bool, list[dict[str, Any]]]:
@@ -54,6 +55,10 @@ def create_app() -> FastAPI:
     @app.get('/diag')
     def diag() -> dict[str, Any]:
         return collect_run_report(ROOT)
+
+    @app.get('/diag/style')
+    def diag_style() -> dict[str, object]:
+        return collect_style_guard_report(ROOT)
 
     @app.post('/diag/run')
     def diag_run() -> dict[str, Any]:
