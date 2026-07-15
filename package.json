@@ -6,7 +6,12 @@
     "setup": "python3 scripts/setup.py",
     "doctor": "python3 scripts/doctor.py",
     "smoke": "python3 scripts/smoke.py",
-    "check:syntax": "python3 -m py_compile scripts/setup.py scripts/doctor.py scripts/smoke.py",
-    "test": "python3 -m pytest tests/test_one_click_open_box.py -q"
+    "check:syntax": "python3 -m py_compile scripts/*.py",
+    "test": "python3 -m pytest tests/test_one_click_open_box.py -q",
+    "api": "python3 scripts/ideasphere_api.py"
+  },
+  "dependencies": {
+    "fastapi": "^0.115.0",
+    "uvicorn": "^0.30.6"
   }
 }
