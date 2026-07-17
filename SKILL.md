@@ -54,6 +54,15 @@ metadata:
       - 视频优化
 scripts:
   pipeline: scripts/pipeline.py
+  pipeline: scripts/pipeline.py
+  video_clip: scripts/video_clip.py
+  video_to_text: scripts/video_to_text.py
+  translate_subtitle: scripts/translate_subtitle.py
+  burn_subtitle: scripts/burn_subtitle.py
+  platform_render: scripts/platform_render.py
+  ffmpeg_tools: scripts/ffmpeg_tools.py
+  manifest: scripts/manifest.py
+  diffusers_pipeline_adapter: scripts/diffusers_pipeline_adapter.py
 ---
 
 # 灵感象限-Ideasphere
