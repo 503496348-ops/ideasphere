@@ -18,7 +18,10 @@
     "scripts/product_convergence_gate.py",
     "scripts/stage_pipeline.py",
     "scripts/tts_dubbing.py",
+    "scripts/diffusers_pipeline_adapter.py",
     "scripts/video_download.py"
+    ,
+    "scripts/test_diffusers_pipeline_adapter.py"
   ],
   "policy": "External/fusion references are allowed only when explicitly reviewed here; new fusion work must add a smoke target or entrypoint wiring."
 }
