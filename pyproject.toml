@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "ideasphere"
+version = "0.1.0"
+description = "Video content creation and editing pipeline"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    {name = "智械工坊", email = "ops@zhixie.ai"},
+]
+keywords = ["ai", "automation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.scripts]
+ideasphere = "scripts.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/503496348-ops/ideasphere"
+Repository = "https://github.com/503496348-ops/ideasphere"
+Issues = "https://github.com/503496348-ops/ideasphere/issues"
+
+[tool.setuptools.packages.find]
+include = ["ideasphere*", "scripts*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --tb=short"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
