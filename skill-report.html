@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skill Checker Report</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5efe4;
+      --panel: #fffdf8;
+      --ink: #1f1a14;
+      --muted: #6e6458;
+      --border: #d6c9b7;
+      --accent: #1f6f78;
+      --accent-soft: #d7ece8;
+      --success: #217346;
+      --success-soft: #dcf4e4;
+      --danger: #a13232;
+      --danger-soft: #f8dddd;
+      --pill-neutral-bg: #efe6d8;
+      --pill-neutral-text: #5f5347;
+      --warn: #8c5f12;
+      --warn-soft: #fdecc8;
+      --shadow: 0 18px 40px rgba(31, 26, 20, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(31, 111, 120, 0.18), transparent 28%),
+        linear-gradient(180deg, #fcf8ef 0%, var(--bg) 100%);
+      color: var(--ink);
+    }
+    .shell {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 40px 20px 72px;
+    }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+    .hero {
+      padding: 28px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .lang-switch {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      display: inline-flex;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff8ec;
+      overflow: hidden;
+    }
+    .lang-switch button {
+      border: 0;
+      background: transparent;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .lang-switch button.active {
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .lang {
+      display: none;
+    }
+    html[data-lang="en"] .lang-en {
+      display: inline;
+    }
+    html[data-lang="zh"] .lang-zh {
+      display: inline;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+      line-height: 1.15;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+    .status-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 700;
+      background: var(--pill-neutral-bg);
+      color: var(--pill-neutral-text);
+    }
+    .status-pill.pass {
+      background: var(--success-soft);
+      color: var(--success);
+    }
+    .status-pill.fail {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .panel {
+      padding: 24px;
+    }
+    .panel h2 {
+      margin: 0 0 16px;
+      font-size: 20px;
+    }
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    li + li {
+      margin-top: 10px;
+    }
+    .finding {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      background: #fffaf1;
+    }
+    .finding + .finding {
+      margin-top: 16px;
+    }
+    .finding-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .badge.severe {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+    .badge.warning {
+      background: var(--warn-soft);
+      color: var(--warn);
+    }
+    code {
+      background: #f3ebe0;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-family: "Cascadia Code", "Consolas", monospace;
+    }
+    .empty {
+      color: var(--muted);
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div class="lang-switch" aria-label="Language switch">
+        <button id="btn-en" class="active" type="button">EN</button>
+        <button id="btn-zh" type="button">中文</button>
+      </div>
+      <h1><span class="lang lang-en">Skill Checker Report</span><span class="lang lang-zh">Skill Checker 报告</span></h1>
+      <p>
+        <span class="lang lang-en">Static specification and semantic checks for a target `SKILL.md` based on Agent Skills specification.</span>
+        <span class="lang lang-zh">根据 Agent Skills specification 对目标 `SKILL.md` 进行静态规范与语义质量检查。</span>
+      </p>
+      <div class="status-row">
+        <div class="status-pill fail">
+          <span class="lang lang-en">Fail</span>
+          <span class="lang lang-zh">不通过</span>
+        </div>
+        <div class="status-pill">
+          <span class="lang lang-en">Severe 2</span>
+          <span class="lang lang-zh">严重问题 2</span>
+        </div>
+        <div class="status-pill">
+          <span class="lang lang-en">Warnings 0</span>
+          <span class="lang lang-zh">一般问题 0</span>
+        </div>
+      </div>
+    </section>
+    <section class="grid">
+      <section class="panel">
+        <h2><span class="lang lang-en">Summary</span><span class="lang lang-zh">摘要</span></h2>
+        <ul><li><strong><span class='lang lang-en'>Target Path:</span><span class='lang lang-zh'>目标路径:</span></strong> <span class='lang lang-en'>/tmp/audit-v2/ideasphere/SKILL.md</span><span class='lang lang-zh'>/tmp/audit-v2/ideasphere/SKILL.md</span></li><li><strong><span class='lang lang-en'>Resolved From:</span><span class='lang lang-zh'>解析来源:</span></strong> <span class='lang lang-en'>File</span><span class='lang lang-zh'>文件</span></li><li><strong><span class='lang lang-en'>Checked File:</span><span class='lang lang-zh'>检查文件:</span></strong> <span class='lang lang-en'>/tmp/audit-v2/ideasphere/SKILL.md</span><span class='lang lang-zh'>/tmp/audit-v2/ideasphere/SKILL.md</span></li><li><strong><span class='lang lang-en'>Checked At:</span><span class='lang lang-zh'>检查时间:</span></strong> <span class='lang lang-en'>2026-07-24T19:13:04+08:00</span><span class='lang lang-zh'>2026-07-24T19:13:04+08:00</span></li><li><strong><span class='lang lang-en'>Final Result:</span><span class='lang lang-zh'>最终结论:</span></strong> <span class='lang lang-en'>Fail</span><span class='lang lang-zh'>不通过</span></li><li><strong><span class='lang lang-en'>Severe Findings:</span><span class='lang lang-zh'>严重问题:</span></strong> <span class='lang lang-en'>2</span><span class='lang lang-zh'>2</span></li><li><strong><span class='lang lang-en'>Warnings:</span><span class='lang lang-zh'>一般问题:</span></strong> <span class='lang lang-en'>0</span><span class='lang lang-zh'>0</span></li></ul>
+      </section>
+      <section class="panel">
+        <h2><span class="lang lang-en">Fix Priority</span><span class="lang lang-zh">修复优先级</span></h2>
+        <ul>
+          <li><span class="lang lang-en">Fix all severe findings before warnings.</span><span class="lang lang-zh">先处理所有严重问题，再处理一般问题。</span></li>
+          <li><span class="lang lang-en">The audit fails when severe findings reach 2 or more.</span><span class="lang lang-zh">若严重问题达到 2 个及以上，本次检查结论为不通过。</span></li>
+          <li><span class="lang lang-en">Prioritize `name`, `description`, frontmatter structure, and executable body guidance.</span><span class="lang lang-zh">重点关注 `name`、`description`、frontmatter 结构和正文可执行性。</span></li>
+        </ul>
+      </section>
+    </section>
+    <section class="panel" style="margin-top: 24px;">
+      <h2><span class="lang lang-en">Findings</span><span class="lang lang-zh">发现的问题</span></h2>
+      <article class='finding'><div class='finding-head'><span class='badge severe'><span class='lang lang-en'>severe</span><span class='lang lang-zh'>严重</span></span><code>spec.frontmatter-invalid</code></div><h3><span class='lang lang-en'>The frontmatter has structural YAML errors and cannot be parsed reliably.</span><span class='lang lang-zh'>frontmatter 存在 YAML 结构问题，无法可靠解析。</span></h3><p><strong><span class='lang lang-en'>Evidence:</span><span class='lang lang-zh'>证据:</span></strong> 字段 `triggers` 不支持嵌套结构。</p><p><strong><span class='lang lang-en'>Suggestion:</span><span class='lang lang-zh'>建议:</span></strong> <span class='lang lang-en'>Fix indentation, duplicate keys, nested formats, and field syntax.</span><span class='lang lang-zh'>检查缩进、重复字段、嵌套格式和字段写法，确保 frontmatter 是简单合法的 YAML。</span></p></article><article class='finding'><div class='finding-head'><span class='badge severe'><span class='lang lang-en'>severe</span><span class='lang lang-zh'>严重</span></span><code>input.audit-blocked</code></div><h3><span class='lang lang-en'>The audit is blocked and marked as fail due to an input or parsing issue.</span><span class='lang lang-zh'>无法继续执行字段级检查，本次检查直接判定为不通过。</span></h3><p><strong><span class='lang lang-en'>Evidence:</span><span class='lang lang-zh'>证据:</span></strong> name: 灵感象限-Ideasphere
+description: &quot;自媒体视频创作引擎。去静音→Whisper字幕→翻译→烧录→平台适配一站式处理。当需要处理视频、添加字幕、翻译视频内容、生成短视频时使用。&quot;
+license: MIT
+metadata:
+  author: 503496348-ops
+  version: 1.6.0
+triggers:
+  - 视频剪辑流水线
+  - 灵感象限
+  - 批量处理视频
+  - 视频去静音
+  - 字幕生成
+  - 字幕翻译
+  - 双语字幕
+  - 视频拼接
+  - 口播剪辑
+  - 平台适配渲染
+  - TTS配音
+  - 语音合成
+  - 视频下载
+  - 在线视频
+  - YouTube下载
+  - B站下载
+  - 视频处理
+  - 视频优化
+  - 视频格式转换</p><p><strong><span class='lang lang-en'>Suggestion:</span><span class='lang lang-zh'>建议:</span></strong> <span class='lang lang-en'>Fix the blocking issue and run the check again.</span><span class='lang lang-zh'>修复 frontmatter 结构后重新运行检查。</span></p></article>
+    </section>
+  </main>
+  <script>
+    function setLang(lang) {
+      document.documentElement.setAttribute("data-lang", lang);
+      const en = document.getElementById("btn-en");
+      const zh = document.getElementById("btn-zh");
+      en.classList.toggle("active", lang === "en");
+      zh.classList.toggle("active", lang === "zh");
+    }
+    document.getElementById("btn-en").addEventListener("click", function () { setLang("en"); });
+    document.getElementById("btn-zh").addEventListener("click", function () { setLang("zh"); });
+    setLang("en");
+  </script>
+</body>
+</html>
