@@ -1,0 +1,63 @@
+name: Compliance Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  compliance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install ruff pytest
+
+      - name: Check required files exist
+        run: |
+          set -e
+          for f in README.md LICENSE CHANGELOG.md CONTRIBUTING.md pyproject.toml; do
+            [ -f "$f" ] || { echo "❌ Missing: $f"; exit 1; }
+          done
+          # Check py.typed exists in scripts/
+          [ -f scripts/py.typed ] || { echo "❌ Missing: scripts/py.typed"; exit 1; }
+          echo "✅ All required files present"
+
+      - name: Check no narrative remnants
+        run: |
+          if grep -r "老六\|三省六部\|女王陛下" --include="*.py" .; then
+            echo "❌ Found narrative remnants in Python files"
+            exit 1
+          fi
+          echo "✅ No narrative remnants"
+
+      - name: Check no pycache committed
+        run: |
+          if git ls-files | grep -E "__pycache__|\.pyc$"; then
+            echo "❌ pycache files committed"
+            exit 1
+          fi
+          echo "✅ No pycache committed"
+
+      - name: Ruff lint
+        run: ruff check . --select E,F,W,I
+
+      - name: CLI smoke test
+        run: python scripts/cli.py --help
+
+      - name: Type hints check (CLI)
+        run: |
+          if ! grep -q "-> " scripts/cli.py; then
+            echo "❌ scripts/cli.py missing type hints"
+            exit 1
+          fi
+          echo "✅ CLI has type hints"
+
+      - name: Run tests
+        run: python -m pytest tests/ -q --tb=short
