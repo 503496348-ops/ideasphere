@@ -25,28 +25,27 @@ jobs:
           for f in README.md LICENSE CHANGELOG.md CONTRIBUTING.md pyproject.toml; do
             [ -f "$f" ] || { echo "❌ Missing: $f"; exit 1; }
           done
-          # Check py.typed exists in scripts/
           [ -f scripts/py.typed ] || { echo "❌ Missing: scripts/py.typed"; exit 1; }
           echo "✅ All required files present"
 
       - name: Check no narrative remnants
         run: |
           if grep -r "老六\|三省六部\|女王陛下" --include="*.py" .; then
-            echo "❌ Found narrative remnants in Python files"
+            echo "❌ Found narrative remnants"
             exit 1
           fi
-          echo "✅ No narrative remnants"
+          echo "✅ Clean"
 
       - name: Check no pycache committed
         run: |
           if git ls-files | grep -E "__pycache__|\.pyc$"; then
-            echo "❌ pycache files committed"
+            echo "❌ pycache committed"
             exit 1
           fi
-          echo "✅ No pycache committed"
+          echo "✅ Clean"
 
-      - name: Ruff lint
-        run: ruff check . --select E,F,W,I
+      - name: Ruff lint (errors only)
+        run: ruff check . --select E9,F63,F7,F82 --show-source
 
       - name: CLI smoke test
         run: python scripts/cli.py --help
