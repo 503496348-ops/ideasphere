@@ -1,13 +1,10 @@
 ---
 name: 灵感象限-Ideasphere
 description: "自媒体视频创作引擎。去静音→Whisper字幕→翻译→烧录→平台适配一站式处理。当需要处理视频、添加字幕、翻译视频内容、生成短视频时使用。"
-version: 1.6.0
-requires_toolsets:
-  - terminal
-  - python
-  - file
-platforms:
-  - local
+license: MIT
+metadata:
+  author: 503496348-ops
+  version: 1.6.0
 triggers:
   - 视频剪辑流水线
   - 灵感象限
@@ -28,41 +25,6 @@ triggers:
   - 视频处理
   - 视频优化
   - 视频格式转换
-metadata:
-  hermes:
-    author: AtomCollide-智械工坊团队
-    created: 2026-05-04
-    updated: 2026-06-27
-    maturity: production
-    category: media
-    tags:
-      - 视频剪辑
-      - 字幕生成
-      - 字幕翻译
-      - 双语字幕
-      - 批量处理
-      - FFmpeg
-      - Whisper
-      - 灵感象限
-      - 平台适配
-      - TTS配音
-      - Edge TTS
-      - MiniMax TTS
-      - 视频下载
-      - yt-dlp
-      - 视频处理
-      - 视频优化
-scripts:
-  pipeline: scripts/pipeline.py
-  pipeline: scripts/pipeline.py
-  video_clip: scripts/video_clip.py
-  video_to_text: scripts/video_to_text.py
-  translate_subtitle: scripts/translate_subtitle.py
-  burn_subtitle: scripts/burn_subtitle.py
-  platform_render: scripts/platform_render.py
-  ffmpeg_tools: scripts/ffmpeg_tools.py
-  manifest: scripts/manifest.py
-  diffusers_pipeline_adapter: scripts/diffusers_pipeline_adapter.py
 ---
 
 # 灵感象限-Ideasphere
